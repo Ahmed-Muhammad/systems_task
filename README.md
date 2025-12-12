@@ -1,14 +1,18 @@
 # Fake Store Products App
 
-A Flutter mini‑ecommerce app built on top of [Fake Store API](https://fakestoreapi.com/) that demonstrates:
+A Flutter mini-ecommerce app built on top of [Fake Store API](https://fakestoreapi.com/) that demonstrates modern mobile development practices with clean architecture and offline-first capabilities.
 
-- Product listing in **grid** or **list** view
-- Product details screen
+## 📱 Overview
+
+This application showcases:
+
+- Product listing with **grid** and **list** view modes
+- Detailed product information screen
 - Favorites management with local persistence (Hive)
-- Offline caching of products with graceful fallback
-- Online/offline awareness via `connectivity_plus`
-- Dark / light theme toggle
-- Clean separation between **presentation**, **data**, and **local cache** layers
+- Offline-first architecture with graceful fallback
+- Real-time network connectivity awareness
+- Dark/light theme toggle
+- Clean separation of concerns (presentation, data, and cache layers)
 - GetX for state management and navigation
 
 ---
@@ -17,321 +21,384 @@ A Flutter mini‑ecommerce app built on top of [Fake Store API](https://fakestor
 
 ### Product Listing
 
-- Home screen: `ProductListPage` (`lib/presentation/pages/product_list_page.dart`)
-- Fetches products via a `ProductRepository` (see data layer)
-- Supports:
+**Location**: `lib/presentation/pages/product_list_page.dart`
+
+The home screen displays products fetched from the Fake Store API with the following capabilities:
+
+- **Dual View Modes**:
     - Grid view (`ProductGrids` + `ProductGridItem`)
     - List view (`ProductList` + `ProductListItem`)
-    - Pull‑to‑refresh
-    - Offline banner
-- One‑tap toggle between Grid/List in the app bar
+- **Pull-to-refresh** functionality
+- **Offline banner** indicating network status
+- **One-tap toggle** between Grid/List in the app bar
 
 ### Product Details
 
-- Screen: `ProductDetailPage` (`lib/presentation/pages/product_detail_page.dart`)
-- Shows:
-    - Large product image
-    - Category chip
-    - Price
-    - Rating & review count
-    - Description text
-- “Add to / Remove from Favorites” call‑to‑action button using GetX reactive state
+**Location**: `lib/presentation/pages/product_detail_page.dart`
 
-### Favorites
+Comprehensive product information display:
 
-- Screen: `FavoritesScreen` (`lib/presentation/pages/favorites_screen.dart`)
-- Shows all products for which `controller.isFavorite(product.id)` is true
-- Uses the same `Product` model as the list
-- Drawer entry: “My Favorites” with a badge showing `favorites.length`
-- Tapping a favorite item opens `ProductDetailPage`
+- Large product image
+- Category chip
+- Price display
+- Rating with review count
+- Full description
+- Reactive "Add to/Remove from Favorites" button
+
+### Favorites Management
+
+**Location**: `lib/presentation/pages/favorites_screen.dart`
+
+- Displays all favorited products
+- Accessible via drawer with badge showing favorites count
+- Uses the same `Product` model as the main list
+- Tap any item to view full product details
 
 ### Offline Support & Caching
 
-- Local cache via `ProductLocalDatasource` (Hive‑based), used by `ProductListController`:
-    - `cacheProducts(data)`
-    - `getAllCachedProducts()`
-    - `getCacheCount()`
-    - `searchCachedProducts()`, `getByCategory()`, `getCacheStats()`, `clearCache()`
-- When **online**:
-    - Products are loaded from the API and cached to Hive
-- When **offline**:
-    - Products are loaded from cache if available
-    - Specific messaging when no cache exists (e.g., “No cached data available. Please go online first.”)
-- Fallback logic to cached data if network calls fail
+**Implementation**: `ProductLocalDatasource` (Hive-based)
 
-### Connectivity Awareness
+The app provides robust offline functionality:
 
-- Uses `connectivity_plus` to subscribe to network changes
-- `ProductListController` maintains an `isOnline` reactive flag
-- When the app goes from offline → online:
-    - `_handleReconnection()` is triggered
-    - `refreshProducts()` is called to fetch latest products and update cache
-- `OfflineStatusBanner` widget (from `core/components/offline_status_widget.dart`) shows a persistent banner at the top of the list
+**When Online**:
+- Products are fetched from API and cached locally
+- Cache is automatically updated
 
-### Theming (Dark / Light Mode)
+**When Offline**:
+- Products load from local cache
+- Clear messaging when no cache exists
+- Graceful degradation of functionality
 
-- Controlled by `ProductListController.isDarkMode`
-- Toggled via a switch inside `AppDrawer` (`lib/presentation/pages/app_drawer.dart`)
-- `toggleTheme()` uses `Get.changeThemeMode(ThemeMode.dark/light)` to change theme globally
-- The drawer updates icon/text based on the current theme
+**Cache Operations**:
+- `cacheProducts(data)` - Store products locally
+- `getAllCachedProducts()` - Retrieve all cached items
+- `getCacheCount()` - Get number of cached products
+- `searchCachedProducts()` - Search within cache
+- `getByCategory()` - Filter by category
+- `getCacheStats()` - Cache statistics
+- `clearCache()` - Remove all cached data
 
-### Error & Loading UX
+### Network Connectivity Awareness
 
-- `LoadingWidget` (`lib/presentation/widgets/loading_widget.dart`):
-    - Custom circular animated loader using `AnimationController` + `RotationTransition`
-- `ErrorHandler` (`lib/presentation/widgets/error_widget.dart`):
-    - Central error UI with:
-        - Icon
-        - Title: “Oops! Something went wrong”
-        - Error message
-        - “Try Again” button wired to a retry callback
-- Main screen uses both to display the correct state based on `isLoading` and `error`
+**Implementation**: `connectivity_plus` package
+
+- Real-time network status monitoring
+- Reactive `isOnline` flag in `ProductListController`
+- Automatic reconnection handling:
+    - Triggers `_handleReconnection()` when network is restored
+    - Calls `refreshProducts()` to fetch latest data
+    - Updates local cache automatically
+- Persistent `OfflineStatusBanner` at top of screen
+
+### Theming (Dark/Light Mode)
+
+**Controller**: `ProductListController.isDarkMode`
+
+- Toggle switch in `AppDrawer`
+- Uses `Get.changeThemeMode()` for global theme changes
+- Persistent theme preference
+- Dynamic icon/text updates in drawer
+
+### Error Handling & Loading States
+
+**Custom Widgets**:
+
+1. **LoadingWidget** (`lib/presentation/widgets/loading_widget.dart`):
+    - Custom circular animated loader
+    - Uses `AnimationController` + `RotationTransition`
+
+2. **ErrorHandler** (`lib/presentation/widgets/error_widget.dart`):
+    - Centralized error UI with:
+        - Error icon
+        - Title: "Oops! Something went wrong"
+        - Descriptive error message
+        - "Try Again" button with retry callback
 
 ---
 
-## 🧩 Technologies
+## 🛠 Technologies
 
-From `pubspec.yaml`:
+### Dependencies
+
+```yaml
 dependencies:
-flutter:
-sdk: flutter
+  flutter:
+    sdk: flutter
 
-State / Navigation
-get: ^4.6.6
+  # State Management & Navigation
+  get: ^4.6.6
 
-Local Database
-hive: ^2.2.3
-hive_flutter: ^1.1.0
+  # Local Database
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
 
-Connectivity
-connectivity_plus: ^6.0.5
+  # Network Connectivity
+  connectivity_plus: ^6.0.5
 
-UI / Layout helpers
-gap: ^3.0.1
+  # UI Helpers
+  gap: ^3.0.1
 
-HTTP / Repository (in data layer)
-dio: ^5.x.x # or http, depending on your implementation
+  # HTTP Client
+  dio: ^5.x.x
 
 dev_dependencies:
-flutter_lints: ^3.0.0
-build_runner: ^2.4.6
-hive_generator: ^2.0.1
+  flutter_lints: ^3.0.0
+  build_runner: ^2.4.6
+  hive_generator: ^2.0.1
+```
 
+---
 
-## 🏁 Getting Started
+## 🚀 Getting Started
 
 ### 1. Clone & Install
+
+```bash
 git clone <your-repo-url>.git
 cd <your-project-folder>
-
 flutter pub get
+```
 
+### 2. Initialize Hive & Dependency Injection
 
-
-### 2. Initialize Hive & DI (in `main.dart`)
-
-Ensure that before `runApp()` you:
+Ensure proper initialization in `main.dart` before `runApp()`:
 
 1. Initialize Hive
 2. Register necessary adapters
-3. Open the boxes used by `ProductLocalDatasource`
-4. Create and inject:
+3. Open boxes for products and favorites
+4. Create and inject dependencies:
     - `ProductLocalDatasource`
     - `ProductRepository`
     - `ProductListController`
 
-Example sketch:
+**Example Implementation**:
+
+```dart
 void main() async {
-WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
-await Hive.initFlutter();
-// TODO: register adapters + open boxes for products and favorites
+  // Initialize Hive
+  await Hive.initFlutter();
 
-final localDS = ProductLocalDatasource(); // your implementation
-await localDS.init();
+  // Register adapters (if using custom adapters)
+  // Hive.registerAdapter(ProductAdapter());
 
-final repository = ProductRepository(
-// pass API client + localDS
-);
+  // Open boxes
+  // await Hive.openBox<Product>('products');
+  // await Hive.openBox<int>('favorites');
 
-Get.put(ProductListController(repository, localDS));
+  // Initialize local datasource
+  final localDS = ProductLocalDatasource();
+  await localDS.init();
 
-runApp(const MyApp());
+  // Create repository
+  final repository = ProductRepository(
+    // Pass API client + localDS
+  );
+
+  // Register controller
+  Get.put(ProductListController(repository, localDS));
+
+  runApp(const MyApp());
 }
+```
 
+**Controller Constructor**:
 
-`ProductListController` constructor (from `product_list_controller.dart`):
-
+```dart
 class ProductListController extends GetxController {
-final ProductRepository repository;
-final ProductLocalDatasource productHiveDS;
+  final ProductRepository repository;
+  final ProductLocalDatasource productHiveDS;
 
-ProductListController(this.repository, this.productHiveDS);
-// ...
+  ProductListController(this.repository, this.productHiveDS);
+  // ...
 }
-
+```
 
 ### 3. Run the App
 
+```bash
+flutter run
+```
 
-Entry screen:
+**Entry Point**: `ProductListPage` (`lib/presentation/pages/product_list_page.dart`)
 
-- `ProductListPage` (`lib/presentation/pages/product_list_page.dart`)
-
-It uses `GetView<ProductListController>` and expects the controller to be already registered via `Get.put` or a binding.
+The app uses `GetView<ProductListController>` and expects the controller to be registered via `Get.put` or a binding.
 
 ---
 
-## 📂 Code Structure (based on the attached files)
+## 📂 Project Structure
 
+```
 lib/
-core/
-components/
-custom_network_image.dart # Image helper
-offline_status_widget.dart # Top banner for offline state
-helpers/
-app_logger.dart # AppLogger.debug/info/error wrappers
+├── core/
+│   ├── components/
+│   │   ├── custom_network_image.dart      # Network image helper
+│   │   └── offline_status_widget.dart     # Offline banner component
+│   └── helpers/
+│       └── app_logger.dart                 # Logging utility
+│
+├── data/
+│   ├── datasources/
+│   │   └── local/
+│   │       └── product_local_datasource.dart  # Hive cache layer
+│   ├── models/
+│   │   └── product_model.dart              # Product & Rating models
+│   └── repositories/
+│       └── product_repository.dart         # API & favorites repository
+│
+├── presentation/
+│   ├── controllers/
+│   │   └── product_list_controller.dart    # Main app state (GetX)
+│   ├── pages/
+│   │   ├── product_list_page.dart          # Main products screen
+│   │   ├── product_detail_page.dart        # Product details screen
+│   │   ├── favorites_screen.dart           # Favorites screen
+│   │   └── app_drawer.dart                 # Navigation drawer
+│   └── widgets/
+│       ├── product_list.dart               # List view wrapper
+│       ├── product_list_item.dart          # List item card
+│       ├── product_grids.dart              # Grid view wrapper
+│       ├── product_grids_item.dart         # Grid item card
+│       ├── loading_widget.dart             # Custom loader
+│       └── error_widget.dart               # Error UI component
+│
+└── main.dart                                # App entry point
+```
 
-data/
-datasources/
-local/product_local_datasource.dart # Hive-based cache layer
-models/
-product_model.dart # Product and Rating models
-repositories/
-product_repository.dart # API + favorites interface / impl
+### Layer Responsibilities
 
-presentation/
-controllers/
-product_list_controller.dart # All app/product state (GetX)
-pages/
-product_list_page.dart # Main products screen
-product_detail_page.dart # Product details
-favorites_screen.dart # Favorites screen
-app_drawer.dart # Drawer with favorites & theme toggle
-widgets/
-product_list.dart # List wrapper with RefreshIndicator
-product_list_item.dart # List item card
-product_grids.dart # Grid wrapper with RefreshIndicator
-product_grids_item.dart # Grid item card
-loading_widget.dart # Custom loader
-error_widget.dart # Central error UI
-
-main.dart # App entry point
-
-
-
-Responsibility split:
-
-- **core/**: generic helpers and shared UI components (e.g., offline banner, network images, logger).
-- **data/**: data sources, models, and repository implementation (remote + local).
-- **presentation/**: GetX controllers, pages, and reusable widgets.
-
----
-
-## 🧠 Architecture & Flow
-
-### State & Logic: `ProductListController`
-
-Defined in `lib/presentation/controllers/product_list_controller.dart`:
-
-- Reactive fields (`.obs`):
-    - `products`
-    - `favorites`
-    - `isLoading`, `isLoadingMore`
-    - `error`
-    - `isGridView`
-    - `isDarkMode`
-    - `isOnline`
-    - `isLoadingFromCache`
-    - `isRefreshingAfterReconnect`
-    - `cacheCount`
-- Manages:
-    - Initial load (`onInit`):
-        - Initializes Hive datasource
-        - Starts connectivity listener
-        - Loads favorites, then products
-    - Online load from repository:
-        - `repository.getProducts(limit: 100)`
-        - Caches to Hive
-    - Offline load from cache:
-        - `productHiveDS.getAllCachedProducts()`
-    - Fallback load from cache on errors
-    - Favorites:
-        - `toggleFavorite(Product product)`
-        - `loadFavorites()`
-        - `isFavorite(int productId)`
-    - Connectivity:
-        - `Connectivity().onConnectivityChanged` subscription
-        - `isOnline` updates
-        - `_handleReconnection()` → `refreshProducts()`
-    - View mode / theme toggles:
-        - `toggleViewMode()` (grid ↔ list)
-        - `toggleTheme()` (dark ↔ light, using `Get.changeThemeMode`)
-
-### UI: Product List Page
-
-`ProductListPage` (`lib/presentation/pages/product_list_page.dart`):
-
-- App bar:
-    - Title: “Products”
-    - Action: grid/list toggle (icon changes based on `isGridView`)
-- Drawer:
-    - `AppDrawer` with favorites count + theme switch
-- Body:
-    - `OfflineStatusBanner` at top
-    - Main area uses `GetBuilder` + `Obx` to render:
-        - `LoadingWidget` when `isLoading == true`
-        - `ErrorHandler` with retry when `error` is non‑empty and no products
-        - Offline empty state when offline and no cache
-        - Otherwise:
-            - `ProductGrids` if `isGridView == true`
-            - `ProductList` if `isGridView == false`
-    - Both grid and list use `RefreshIndicator` to call `refreshProducts()`
-
-### UI: Favorites Flow
-
-- `FavoritesScreen` (`lib/presentation/pages/favorites_screen.dart`):
-    - Uses `GetView<ProductListController>` to access the same controller
-    - Filters `controller.products` by `controller.isFavorite(p.id)`
-    - Shows empty state if no favorites
-    - Tapping a card navigates to `ProductDetailPage(product: product)`
-    - Each card includes a favorite button to remove from favorites
-
-### Favorites & Persistence
-
-- Favorites are stored in Hive via `ProductRepository` and/or a favorites box.
-- The controller maintains `favorites` as a list of IDs:
-    - `loadFavorites()` populates `favorites` from repository/Hive
-    - `toggleFavorite` updates:
-        - Hive (via repository methods like `addToFavorites`/`removeFromFavorites`)
-        - The in‑memory `favorites` list
-- UI calls `isFavorite(product.id)` to decide which icon to show.
+- **core/**: Generic helpers and shared UI components (offline banner, network images, logger)
+- **data/**: Data sources, models, and repository implementation (remote + local)
+- **presentation/**: GetX controllers, pages, and reusable widgets
 
 ---
 
-## 🚀 Possible Extensions
+## 🏗 Architecture & Data Flow
 
-- Add explicit pagination (page + limit instead of always `limit: 100`).
-- Add search and filters that use `searchCachedProducts` / `getByCategory` from the local datasource.
-- Extract a separate `ThemeController` if theme logic grows.
-- Add tests for:
-    - `ProductListController`
-    - `ProductRepository`
-    - `ProductLocalDatasource`
+### State Management: `ProductListController`
+
+**Location**: `lib/presentation/controllers/product_list_controller.dart`
+
+#### Reactive State Variables (`.obs`):
+
+- `products` - List of all products
+- `favorites` - List of favorite product IDs
+- `isLoading` - Initial loading state
+- `isLoadingMore` - Pagination loading state
+- `error` - Error messages
+- `isGridView` - Current view mode
+- `isDarkMode` - Current theme mode
+- `isOnline` - Network connectivity status
+- `isLoadingFromCache` - Cache loading indicator
+- `isRefreshingAfterReconnect` - Reconnection refresh state
+- `cacheCount` - Number of cached products
+
+#### Core Functionality:
+
+**Initialization** (`onInit`):
+- Initialize Hive datasource
+- Start connectivity listener
+- Load favorites from storage
+- Load products (online or from cache)
+
+**Online Data Loading**:
+- Fetch from `repository.getProducts(limit: 100)`
+- Cache results to Hive
+- Update UI state
+
+**Offline Data Loading**:
+- Retrieve from `productHiveDS.getAllCachedProducts()`
+- Show appropriate offline messaging
+
+**Favorites Management**:
+- `toggleFavorite(Product product)` - Add/remove favorites
+- `loadFavorites()` - Load favorites from storage
+- `isFavorite(int productId)` - Check favorite status
+
+**Connectivity Handling**:
+- Subscribe to `Connectivity().onConnectivityChanged`
+- Update `isOnline` status
+- Trigger `_handleReconnection()` → `refreshProducts()` on reconnection
+
+**UI Controls**:
+- `toggleViewMode()` - Switch between grid and list
+- `toggleTheme()` - Toggle dark/light mode using `Get.changeThemeMode()`
+
+### UI Layer: Product List Page
+
+**Location**: `lib/presentation/pages/product_list_page.dart`
+
+#### App Bar:
+- Title: "Products"
+- Action button: Grid/List toggle (icon changes based on `isGridView`)
+
+#### Drawer:
+- `AppDrawer` with favorites count badge
+- Theme toggle switch
+
+#### Body:
+- `OfflineStatusBanner` - Persistent network status indicator
+- Main content area using `GetBuilder` + `Obx`:
+    - **Loading State**: Shows `LoadingWidget`
+    - **Error State**: Shows `ErrorHandler` with retry functionality
+    - **Offline Empty State**: Message when offline with no cache
+    - **Success State**:
+        - `ProductGrids` when `isGridView == true`
+        - `ProductList` when `isGridView == false`
+    - Both views include `RefreshIndicator` for pull-to-refresh
+
+### Favorites Flow
+
+**Screen**: `FavoritesScreen` (`lib/presentation/pages/favorites_screen.dart`)
+
+- Uses `GetView<ProductListController>` for shared state
+- Filters `controller.products` by `controller.isFavorite(p.id)`
+- Empty state when no favorites exist
+- Card tap navigation to `ProductDetailPage(product: product)`
+- Favorite button on each card for quick removal
+
+### Favorites Persistence
+
+**Storage**: Hive database via `ProductRepository`
+
+**Flow**:
+1. `loadFavorites()` - Populates `favorites` list from Hive
+2. `toggleFavorite()` - Updates:
+    - Hive storage (via `addToFavorites`/`removeFromFavorites`)
+    - In-memory `favorites` list
+3. `isFavorite(productId)` - Checks favorite status for UI rendering
+
+---
+
+## 🎯 Future Enhancements
+
+- [ ] Implement explicit pagination (page + limit parameters)
+- [ ] Add search functionality using `searchCachedProducts`
+- [ ] Implement category filtering with `getByCategory`
+- [ ] Extract `ThemeController` for better separation of concerns
+- [ ] Add comprehensive test coverage:
+    - Unit tests for `ProductListController`
+    - Integration tests for `ProductRepository`
+    - Widget tests for UI components
+    - Tests for `ProductLocalDatasource`
+- [ ] Implement product sorting options
+- [ ] Add animations for view mode transitions
+- [ ] Implement infinite scroll pagination
+- [ ] Add product comparison feature
 
 ---
 
 ## 📄 License
 
-You can license this project under MIT or another permissive license of your choice.
+This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
 ## 👤 Author
 
-Adapt this section to your profile. Example:
+**Ahmad M. Hassanien**
+- Email: Ahmad_hassanien@hotmail.com
+- Phone: (+2) 01023468689
 
-- Name: Ahmad M. Hassanien
-- Role: Senior Flutter Developer
-- GitHub: `https://github.com/<your-username>`
-- LinkedIn: `https://www.linkedin.com/in/<your-handle>/`  
+
