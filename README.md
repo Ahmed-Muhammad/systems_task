@@ -387,25 +387,25 @@ lib/
 
 ## 📸 Screenshots
 
-| Products Grid (Dark)                                                  | Products Grid (Light)                                                  |
-|-----------------------------------------------------------------------|------------------------------------------------------------------------|
-| ![Products Grid Dark](assets/screenshots/Products%20Grids%20Dark.png) | ![Products Grid Light](assets/screenshots/Products%20Grid%20Light.png) |
+| Products Grid (Dark)                                              | Products Grid (Light)                                              |
+|-------------------------------------------------------------------|--------------------------------------------------------------------|
+| ![Products Grid Dark](assets/screenshots/products_grids_dark.png) | ![Products Grid Light](assets/screenshots/products_grid_light.png) |
 
-| Products List (Dark)                                                 | Products List (Light)                                                  |
-|----------------------------------------------------------------------|------------------------------------------------------------------------|
-| ![Products List Dark](assets/screenshots/Products%20List%20Dark.png) | ![Products List Light](assets/screenshots/Products%20List%20Light.png) |
+| Products List (Dark)                                             | Products List (Light)                                              |
+|------------------------------------------------------------------|--------------------------------------------------------------------|
+| ![Products List Dark](assets/screenshots/products_list_dark.png) | ![Products List Light](assets/screenshots/products_list_light.png) |
 
-| Product Details (Light)                                                    | Drawer (Dark)                                        |
-|----------------------------------------------------------------------------|------------------------------------------------------|
-| ![Product Details Light](assets/screenshots/Product%20Details%20Light.png) | ![Drawer Dark](assets/screenshots/Drawer%20Dark.png) |
+| Product Details (Light)                                                | Drawer (Dark)                                      |
+|------------------------------------------------------------------------|----------------------------------------------------|
+| ![Product Details Light](assets/screenshots/product_details_light.png) | ![Drawer Dark](assets/screenshots/drawer_dark.png) |
 
-| Product Details (Dark)                                                   | Drawer (Light)                                         |
-|--------------------------------------------------------------------------|--------------------------------------------------------|
-| ![Product Details Dark](assets/screenshots/Product%20Details%20Dark.png) | ![Drawer Light](assets/screenshots/Drawer%20Light.png) |
+| Product Details (Dark)                                               | Drawer (Light)                                       |
+|----------------------------------------------------------------------|------------------------------------------------------|
+| ![Product Details Dark](assets/screenshots/product_details_dark.png) | ![Drawer Light](assets/screenshots/drawer_light.png) |
 
-| Favorites (Light)                                            | Favorites (Dark)                                           |
-|--------------------------------------------------------------|------------------------------------------------------------|
-| ![Favorites Light](assets/screenshots/Favorites%20Light.png) | ![Favorites Dark](assets/screenshots/Favorites%20Dark.png) |
+| Favorites (Light)                                          | Favorites (Dark)                                         |
+|------------------------------------------------------------|----------------------------------------------------------|
+| ![Favorites Light](assets/screenshots/favorites_light.png) | ![Favorites Dark](assets/screenshots/favorites_dark.png) |
 
 ## 👤 Author
 
