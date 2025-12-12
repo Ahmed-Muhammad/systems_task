@@ -385,7 +385,9 @@ lib/
 ---
 ---
 ## 📽️ Video
-![Video ](assets/videos/vid.mp4)
+
+[Watch the demo video](assets/videos/vid.mp4)
+
 
 ## 📸 Screenshots
 
