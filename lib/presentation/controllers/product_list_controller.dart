@@ -28,7 +28,7 @@ class ProductListController extends GetxController {
   final isRefreshingAfterReconnect = false.obs;
   final cacheCount = 0.obs;
 
-  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+  late StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
   int currentPage = 1;
   static const int pageSize = 10;
@@ -50,7 +50,7 @@ class ProductListController extends GetxController {
 
   @override
   void onClose() {
-    _connectivitySubscription.cancel();
+    _connectivitySubscription?.cancel();
     super.onClose();
   }
 
@@ -71,19 +71,21 @@ class ProductListController extends GetxController {
   }
 
   void _initConnectivityListener() {
-    _connectivitySubscription = Connectivity().onConnectivityChanged.listen(
-      (List<ConnectivityResult> results) {
-        final wasOffline = !isOnline.value;
-        isOnline.value = !results.contains(ConnectivityResult.none);
-
-        AppLogger.debug('Connectivity changed: ${isOnline.value ? "ONLINE" : "OFFLINE"}');
-
-        if (wasOffline && isOnline.value) {
-          AppLogger.debug('Reconnected!...');
-          _handleReconnection();
-        }
-      },
-    );
+    try {
+      _connectivitySubscription = Connectivity().onConnectivityChanged.listen(
+        (List<ConnectivityResult> results) {
+          final wasOffline = !isOnline.value;
+          isOnline.value = !results.contains(ConnectivityResult.none);
+          AppLogger.debug('Connectivity changed: ${isOnline.value ? "ONLINE" : "OFFLINE"}');
+          if (wasOffline && isOnline.value) {
+            AppLogger.debug('Reconnected!...');
+            _handleReconnection();
+          }
+        },
+      );
+    } catch (e) {
+      AppLogger.error('Error initializing connectivity listener: $e');
+    }
   }
 
   Future<void> _handleReconnection() async {
