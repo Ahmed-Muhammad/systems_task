@@ -268,8 +268,8 @@ lib/
 │   │   ├── custom_network_image.dart      # Network image helper
 │   │   └── offline_status_widget.dart     # Offline banner component
 │   └── helpers/
-│       └── app_logger.dart                 # Logging utility
-│
+│       └── app_logger.dart                # Logging utility
+││      └── api_constants.dart             # Api constant utility
 ├── data/
 │   ├── datasources/
 │   │   └── local/
