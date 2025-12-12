@@ -19,7 +19,7 @@ class ProductListPage extends GetView<ProductListController> {
         title: const Text('Products'),
         elevation: 0,
         actions: [
-          // Grid/List Toggle
+          /// Grid/List Toggle
           Obx(() {
             return IconButton(
               icon: Icon(
@@ -34,21 +34,21 @@ class ProductListPage extends GetView<ProductListController> {
       drawer: const AppDrawer(),
       body: Column(
         children: [
-          //  Offline Status Banner (Top of body)
+          ///  Offline Status Banner
           const OfflineStatusBanner(),
 
-          // Main content
+          /// Main content
           Expanded(
             child: GetBuilder(
               init: Get.find<ProductListController>(),
               builder: (controller) {
                 return Obx(() {
-                  // 🔄 Loading state
+                  /// Loading state
                   if (controller.isLoading.value) {
                     return const Center(child: LoadingWidget());
                   }
 
-                  //   Error and no products (with retry)
+                  ///  Error and no products (with retry)
                   if (controller.error.value.isNotEmpty && controller.products.isEmpty) {
                     return ErrorHandler(
                       error: controller.error.value,
@@ -56,14 +56,14 @@ class ProductListPage extends GetView<ProductListController> {
                     );
                   }
 
-                  // 💾 Offline with cached data
+                  /// Offline with cached data
                   if (!controller.isOnline.value && controller.products.isEmpty) {
                     return OfflineEmptyState(
                       onRetry: controller.loadProducts,
                     );
                   }
 
-                  //  Display products (grid or list)
+                  ///  Display products (grid or list)
                   return AnimatedSwitcher(
                     duration: const Duration(milliseconds: 500),
                     child: controller.isGridView.value

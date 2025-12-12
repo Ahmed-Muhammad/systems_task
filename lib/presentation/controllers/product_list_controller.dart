@@ -28,7 +28,7 @@ class ProductListController extends GetxController {
   final isRefreshingAfterReconnect = false.obs;
   final cacheCount = 0.obs;
 
-  late StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
   int currentPage = 1;
   static const int pageSize = 10;
@@ -36,6 +36,7 @@ class ProductListController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
     AppLogger.debug('ProductListController initializing...');
 
     _initHiveDatasource();

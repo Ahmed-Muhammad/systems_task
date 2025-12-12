@@ -5,6 +5,8 @@ import 'package:flutter_task_systems/data/datasources/local/product_local_dataso
 import 'package:flutter_task_systems/data/datasources/remote/product_remote_datasource.dart';
 import 'package:flutter_task_systems/data/repositories/product_repository.dart';
 import 'package:flutter_task_systems/presentation/controllers/product_list_controller.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 
@@ -13,23 +15,25 @@ final getIt = GetIt.instance;
 void setupServiceLocator() {
   AppLogger.debug(' Setting up Service Locator...');
 
-  // Register Dio
+  /// Register Dio
   getIt.registerSingleton<Dio>(
     Dio(BaseOptions(connectTimeout: const Duration(seconds: 15), receiveTimeout: const Duration(seconds: 15), contentType: Headers.jsonContentType)),
   );
 
-  // Register Remote Data Source
+  /// Register Remote Data Source
   getIt.registerSingleton<ProductRemoteDatasource>(ProductRemoteDatasource(getIt<Dio>()));
 
-  // Hive Database
+  /// Hive Database
   getIt.registerSingleton<HiveInterface>(Hive);
   getIt.registerSingleton<FavoriteLocalDatasource>(FavoriteLocalDatasource(getIt<HiveInterface>()));
   getIt.registerSingleton<ProductLocalDatasource>(ProductLocalDatasource());
 
-  // Repository
+  /// Repository
   getIt.registerSingleton<ProductRepository>(ProductRepository(getIt<ProductRemoteDatasource>(), getIt<FavoriteLocalDatasource>()));
-  // Controller
-  getIt.registerSingleton<ProductListController>(
-    ProductListController(getIt<ProductRepository>(), getIt<ProductLocalDatasource>()),
-  );
+
+  /// Controller
+  getIt.registerSingleton<ProductListController>(ProductListController(getIt<ProductRepository>(), getIt<ProductLocalDatasource>()));
+
+  Get.put<ProductRepository>(getIt<ProductRepository>());
+  Get.put<ProductListController>(ProductListController(getIt<ProductRepository>(), getIt<ProductLocalDatasource>()));
 }

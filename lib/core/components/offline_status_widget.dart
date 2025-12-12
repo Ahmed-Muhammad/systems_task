@@ -40,24 +40,21 @@ class OfflineStatusBanner extends GetView<ProductListController> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    // const SizedBox(height: 2),
-                    // Text(
-                    //   'Showing cached data',
-                    //   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    //     color: Colors.white70,
-                    //   ),
-                    // ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Showing cached data',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Colors.white70,
+                      ),
+                    ),
                   ],
                 ),
               ),
-              // Spinner icon if loading from cache
-              if (controller.isLoadingFromCache.value) const LoadingWidget(scale: .75, insideColor: Color(0xfff57c00)),
             ],
           ),
         );
       }
 
-      // Reconnecting State - Show reconnecting banner
       if (controller.isRefreshingAfterReconnect.value) {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
