@@ -1,492 +1,337 @@
-# Flutter Task Systems 📱
+# Fake Store Products App
 
-A **production-ready** Flutter app showcasing a complete product management system with listing, details, favorites, and unit testing. Built with **GetX**, **Hive**, and **Clean Architecture**.
+A Flutter mini‑ecommerce app built on top of [Fake Store API](https://fakestoreapi.com/) that demonstrates:
+
+- Product listing in **grid** or **list** view
+- Product details screen
+- Favorites management with local persistence (Hive)
+- Offline caching of products with graceful fallback
+- Online/offline awareness via `connectivity_plus`
+- Dark / light theme toggle
+- Clean separation between **presentation**, **data**, and **local cache** layers
+- GetX for state management and navigation
+
+---
 
 ## ✨ Features
 
- **Product Listing** - Grid/List view with product cards  
- **Product Details** - Full product information page  
- **Favorites System** - Save/unsave products locally with Hive  
- **Pull-to-Refresh** - Refresh product list with gestures  
- **Pagination** - Load more products on scroll  
- **Offline Support** - Cached data for offline viewing  
- **Dark Mode** - Light/Dark theme support  
- **Error Handling** - Comprehensive error states  
- **Loading States** - Visual feedback during data fetch  
- **GetX State Management** - Fast, reactive state management  
- **Dependency Injection** - get_it service locator  
- **Unit Tests** - 2+ comprehensive tests with Mockito
+### Product Listing
+
+- Home screen: `ProductListPage` (`lib/presentation/pages/product_list_page.dart`)
+- Fetches products via a `ProductRepository` (see data layer)
+- Supports:
+    - Grid view (`ProductGrids` + `ProductGridItem`)
+    - List view (`ProductList` + `ProductListItem`)
+    - Pull‑to‑refresh
+    - Offline banner
+- One‑tap toggle between Grid/List in the app bar
+
+### Product Details
+
+- Screen: `ProductDetailPage` (`lib/presentation/pages/product_detail_page.dart`)
+- Shows:
+    - Large product image
+    - Category chip
+    - Price
+    - Rating & review count
+    - Description text
+- “Add to / Remove from Favorites” call‑to‑action button using GetX reactive state
+
+### Favorites
+
+- Screen: `FavoritesScreen` (`lib/presentation/pages/favorites_screen.dart`)
+- Shows all products for which `controller.isFavorite(product.id)` is true
+- Uses the same `Product` model as the list
+- Drawer entry: “My Favorites” with a badge showing `favorites.length`
+- Tapping a favorite item opens `ProductDetailPage`
+
+### Offline Support & Caching
+
+- Local cache via `ProductLocalDatasource` (Hive‑based), used by `ProductListController`:
+    - `cacheProducts(data)`
+    - `getAllCachedProducts()`
+    - `getCacheCount()`
+    - `searchCachedProducts()`, `getByCategory()`, `getCacheStats()`, `clearCache()`
+- When **online**:
+    - Products are loaded from the API and cached to Hive
+- When **offline**:
+    - Products are loaded from cache if available
+    - Specific messaging when no cache exists (e.g., “No cached data available. Please go online first.”)
+- Fallback logic to cached data if network calls fail
+
+### Connectivity Awareness
+
+- Uses `connectivity_plus` to subscribe to network changes
+- `ProductListController` maintains an `isOnline` reactive flag
+- When the app goes from offline → online:
+    - `_handleReconnection()` is triggered
+    - `refreshProducts()` is called to fetch latest products and update cache
+- `OfflineStatusBanner` widget (from `core/components/offline_status_widget.dart`) shows a persistent banner at the top of the list
+
+### Theming (Dark / Light Mode)
+
+- Controlled by `ProductListController.isDarkMode`
+- Toggled via a switch inside `AppDrawer` (`lib/presentation/pages/app_drawer.dart`)
+- `toggleTheme()` uses `Get.changeThemeMode(ThemeMode.dark/light)` to change theme globally
+- The drawer updates icon/text based on the current theme
+
+### Error & Loading UX
+
+- `LoadingWidget` (`lib/presentation/widgets/loading_widget.dart`):
+    - Custom circular animated loader using `AnimationController` + `RotationTransition`
+- `ErrorHandler` (`lib/presentation/widgets/error_widget.dart`):
+    - Central error UI with:
+        - Icon
+        - Title: “Oops! Something went wrong”
+        - Error message
+        - “Try Again” button wired to a retry callback
+- Main screen uses both to display the correct state based on `isLoading` and `error`
 
 ---
 
-## 🏗️ Architecture
+## 🧩 Technologies
 
-**Pattern:** Clean Architecture with GetX
+From `pubspec.yaml`:
+dependencies:
+flutter:
+sdk: flutter
 
-```
-lib/
-├── main.dart                          # Entry point
-├── config/
-│   ├── di/service_locator.dart       # Dependency injection setup
-│   └── theme/app_theme.dart          # Theme configuration
-├── data/
-│   ├── models/product_model.dart      # Product data model
-│   ├── datasources/
-│   │   ├── remote/product_api.dart    # API calls
-│   │   └── local/favorite_hive_datasource.dart  # Hive database
-│   └── repositories/product_repository.dart     # Data access layer
-├── presentation/
-│   ├── controllers/
-│   │   └── product_list_controller.dart         # Business logic
-│   ├── pages/
-│   │   ├── product_list_page.dart               # List screen
-│   │   └── product_detail_page.dart             # Detail screen
-│   └── widgets/
-│       ├── product_card.dart
-│       ├── product_grid.dart
-│       ├── loading_widget.dart
-│       ├── error_widget.dart
-│       └── custom_app_bar.dart
-└── utils/constants.dart
-```
+State / Navigation
+get: ^4.6.6
 
-**Layer Breakdown:**
+Local Database
+hive: ^2.2.3
+hive_flutter: ^1.1.0
 
-- **Data Layer** - Handles API calls, local database, and repository pattern
-- **Presentation Layer** - GetX controllers manage state, Pages/Widgets display UI
-- **Config Layer** - Dependency injection and theme setup
+Connectivity
+connectivity_plus: ^6.0.5
 
----
+UI / Layout helpers
+gap: ^3.0.1
 
-## 🚀 Getting Started
+HTTP / Repository (in data layer)
+dio: ^5.x.x # or http, depending on your implementation
 
-### Prerequisites
+dev_dependencies:
+flutter_lints: ^3.0.0
+build_runner: ^2.4.6
+hive_generator: ^2.0.1
 
-- Flutter 3.0+
-- Dart 3.0+
-- Android Studio / VS Code
 
-### Installation
+## 🏁 Getting Started
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Ahmed-Muhammad/flutter_task_systems.git
-   cd flutter_task_systems
-   ```
+### 1. Clone & Install
+git clone <your-repo-url>.git
+cd <your-project-folder>
 
-2. **Install dependencies**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Run code generation (for Mockito tests)**
-   ```bash
-   flutter pub run build_runner build
-   ```
-
-4. **Run the app**
-   ```bash
-   flutter run
-   ```
-
-5. **Run tests**
-   ```bash
-   flutter test
-   ```
-
----
-
-## 🔑 Key Technologies
-
-| Technology               | Purpose                    |
-|--------------------------|----------------------------|
-| **GetX**                 | State management & routing |
-| **Hive**                 | Local NoSQL database       |
-| **http**                 | API communication          |
-| **get_it**               | Dependency injection       |
-| **cached_network_image** | Image caching              |
-| **mockito**              | Unit testing framework     |
-
----
-
-## 📱 Usage
-
-### 1. View Products
-
-- Launch app to see grid of all products
-- Pull-to-refresh to reload data
-- Scroll down to load more products (pagination)
-
-### 2. View Details
-
-- Tap any product card to view details
-- See full description and larger image
-- Add/remove from favorites with the heart button
-
-### 3. Manage Favorites
-
-- Tap heart icon to add to favorites
-- Favorites are saved to Hive database
-- Persists even after app restart
-
-### 4. Toggle Dark Mode
-
-- Use system theme or toggle in app
-- All UI elements adapt to theme
-
----
-
-## 🧪 Testing
-
-### Run All Tests
-
-```bash
-flutter test
-```
-
-### Test Coverage
-
-- **ProductRepository Tests** - API calls, caching, error handling
-- **ProductListController Tests** - State management, pagination, refresh
-- **FavoriteHiveDatasource Tests** - Database operations
-
-### View Test Output
-
-```bash
-flutter test --verbose
-```
-
-### Generate Coverage Report
-
-```bash
-flutter test --coverage
-lcov --list coverage/lcov.info
-```
-
----
-
-## 🔄 API Integration
-
-**Base URL:** `https://fakestoreapi.com`
-
-### Endpoints Used
-
-- `GET /products` - Fetch all products with pagination
-- `GET /products/:id` - Fetch single product details
-
-### Example API Response
-
-```json
-{
-    "id" : 1,
-    "title" : "Product Title",
-    "price" : 109.95,
-    "description" : "Product description...",
-    "category" : "electronics",
-    "image" : "https://..."
-}
-```
-
----
-
-## 💾 Local Database (Hive)
-
-### Favorites Storage
-
-Products are stored in Hive with key-value pairs:
-
-```dart
-// Add to favorites
-await
-favoritesBox.put
-(productId, productData);
-
-// Get favorites
-List<Product> favorites = favoritesBox.values.toList();
-
-// Remove from favorites
-await
-favoritesBox.delete
-(
-productId
-);
-```
-
-### Box Name
-
-- **Box:** `favorites`
-- **Type:** Product models
-
----
-
-## 🎨 Theming
-
-### Light Theme
-
-- Clean white background
-- Dark text for readability
-- Teal accent colors
-
-### Dark Theme
-
-- Dark background
-- Light text
-- Adjusted colors for OLED displays
-
-### Toggle Theme
-
-```dart
-Get.changeThemeMode
-(
-Get.isDarkMode ? ThemeMode.light : ThemeMode.dark
-);
-```
-
----
-
-## ⚙️ Dependency Injection Setup
-
-```dart
-// In service_locator.dart
-void setupServiceLocator() {
-  // API
-  getIt.registerSingleton<http.Client>(http.Client());
-  getIt.registerSingleton<ProductApi>(ProductApi(getIt()));
-
-  // Database
-  getIt.registerSingleton<HiveInterface>(Hive);
-  getIt.registerSingleton<FavoriteHiveDatasource>(
-    FavoriteHiveDatasource(getIt()),
-  );
-
-  // Repository
-  getIt.registerSingleton<ProductRepository>(
-    ProductRepository(getIt(), getIt()),
-  );
-
-  // Controller
-  getIt.registerSingleton<ProductListController>(
-    ProductListController(getIt()),
-  );
-}
-```
-
----
-
-## 🌐 Pagination Implementation
-
-Products are loaded in batches of 10:
-
-```dart
-// First load: products 1-10
-// Scroll to bottom → Load products 11-20
-// Each load appends to existing list
-
-int currentPage = 1;
-int pageSize = 10;
-
-Future<void> loadMore() async {
-  currentPage++;
-  // Fetch next batch
-}
-```
-
----
-
-## 🛠️ Error Handling
-
-### Types of Errors Handled
-
-- **Network errors** - No internet, timeout, 404, 500
-- **Local database errors** - Hive read/write failures
-- **Parse errors** - JSON decoding issues
-- **State errors** - Invalid app states
-
-### Error Display
-
-- Toast notifications for quick feedback
-- Full error screens for detailed issues
-- Retry buttons for failed operations
-
----
-
-## 📝 Code Quality
-
-### Best Practices Implemented
-
- Clean Architecture principles  
- SOLID design principles  
- Const constructors for performance  
- Proper error handling  
- Comprehensive logging  
- Type safety with Dart types  
- Null safety throughout
-
-### Analysis
-
-Run analysis with:
-
-```bash
-flutter analyze
-```
-
----
-
-## 📊 Performance
-
-- **Image Caching** - cached_network_image for efficient loading
-- **List Virtualization** - GridView with lazy loading
-- **State Management** - Only rebuilds affected widgets with GetX
-- **Database** - Hive for fast local storage (~1ms read/write)
-
----
-
-## 🔐 Security Considerations
-
-- HTTPS only for API calls
-- No sensitive data in logs
-- Secure Hive box storage (local device only)
-- Input validation on all forms
-
----
-
-## 🐛 Troubleshooting
-
-### App Crashes on Startup
-
-```bash
-flutter clean
 flutter pub get
-flutter run
-```
 
-### Hive "Box not found" Error
 
-```bash
-# Hive registers on first run
-# Clear app data if issues persist
-adb shell pm clear <package_name>
-```
 
-### Tests Fail to Run
+### 2. Initialize Hive & DI (in `main.dart`)
 
-```bash
-flutter pub run build_runner build --delete-conflicting-outputs
-flutter test
-```
+Ensure that before `runApp()` you:
 
-### Images Not Loading
+1. Initialize Hive
+2. Register necessary adapters
+3. Open the boxes used by `ProductLocalDatasource`
+4. Create and inject:
+    - `ProductLocalDatasource`
+    - `ProductRepository`
+    - `ProductListController`
 
-- Check internet connection
-- Verify API is accessible: https://fakestoreapi.com/products
-- Clear image cache: restart app
+Example sketch:
+void main() async {
+WidgetsFlutterBinding.ensureInitialized();
+
+await Hive.initFlutter();
+// TODO: register adapters + open boxes for products and favorites
+
+final localDS = ProductLocalDatasource(); // your implementation
+await localDS.init();
+
+final repository = ProductRepository(
+// pass API client + localDS
+);
+
+Get.put(ProductListController(repository, localDS));
+
+runApp(const MyApp());
+}
+
+
+`ProductListController` constructor (from `product_list_controller.dart`):
+
+class ProductListController extends GetxController {
+final ProductRepository repository;
+final ProductLocalDatasource productHiveDS;
+
+ProductListController(this.repository, this.productHiveDS);
+// ...
+}
+
+
+### 3. Run the App
+
+
+Entry screen:
+
+- `ProductListPage` (`lib/presentation/pages/product_list_page.dart`)
+
+It uses `GetView<ProductListController>` and expects the controller to be already registered via `Get.put` or a binding.
 
 ---
 
-## 📚 Additional Resources
+## 📂 Code Structure (based on the attached files)
 
-- [GetX Documentation](https://pub.dev/packages/get)
-- [Hive Documentation](https://pub.dev/packages/hive)
-- [FakeStore API Docs](https://fakestoreapi.com/docs)
-- [Flutter Testing Guide](https://flutter.dev/docs/testing)
-- [Clean Architecture in Flutter](https://resocoder.com/flutter-clean-architecture)
+lib/
+core/
+components/
+custom_network_image.dart # Image helper
+offline_status_widget.dart # Top banner for offline state
+helpers/
+app_logger.dart # AppLogger.debug/info/error wrappers
+
+data/
+datasources/
+local/product_local_datasource.dart # Hive-based cache layer
+models/
+product_model.dart # Product and Rating models
+repositories/
+product_repository.dart # API + favorites interface / impl
+
+presentation/
+controllers/
+product_list_controller.dart # All app/product state (GetX)
+pages/
+product_list_page.dart # Main products screen
+product_detail_page.dart # Product details
+favorites_screen.dart # Favorites screen
+app_drawer.dart # Drawer with favorites & theme toggle
+widgets/
+product_list.dart # List wrapper with RefreshIndicator
+product_list_item.dart # List item card
+product_grids.dart # Grid wrapper with RefreshIndicator
+product_grids_item.dart # Grid item card
+loading_widget.dart # Custom loader
+error_widget.dart # Central error UI
+
+main.dart # App entry point
+
+
+
+Responsibility split:
+
+- **core/**: generic helpers and shared UI components (e.g., offline banner, network images, logger).
+- **data/**: data sources, models, and repository implementation (remote + local).
+- **presentation/**: GetX controllers, pages, and reusable widgets.
 
 ---
 
-## 📁 Project Structure Details
+## 🧠 Architecture & Flow
 
-### Data Layer
+### State & Logic: `ProductListController`
 
-- **Models** - Serializable data classes with fromJson/toJson
-- **DataSources** - Remote (API) and Local (Hive) data access
-- **Repository** - Combines datasources, handles caching logic
+Defined in `lib/presentation/controllers/product_list_controller.dart`:
 
-### Presentation Layer
+- Reactive fields (`.obs`):
+    - `products`
+    - `favorites`
+    - `isLoading`, `isLoadingMore`
+    - `error`
+    - `isGridView`
+    - `isDarkMode`
+    - `isOnline`
+    - `isLoadingFromCache`
+    - `isRefreshingAfterReconnect`
+    - `cacheCount`
+- Manages:
+    - Initial load (`onInit`):
+        - Initializes Hive datasource
+        - Starts connectivity listener
+        - Loads favorites, then products
+    - Online load from repository:
+        - `repository.getProducts(limit: 100)`
+        - Caches to Hive
+    - Offline load from cache:
+        - `productHiveDS.getAllCachedProducts()`
+    - Fallback load from cache on errors
+    - Favorites:
+        - `toggleFavorite(Product product)`
+        - `loadFavorites()`
+        - `isFavorite(int productId)`
+    - Connectivity:
+        - `Connectivity().onConnectivityChanged` subscription
+        - `isOnline` updates
+        - `_handleReconnection()` → `refreshProducts()`
+    - View mode / theme toggles:
+        - `toggleViewMode()` (grid ↔ list)
+        - `toggleTheme()` (dark ↔ light, using `Get.changeThemeMode`)
 
-- **Controllers** - GetX RxController with business logic
-- **Pages** - Full screen widgets
-- **Widgets** - Reusable UI components
+### UI: Product List Page
 
-### Config Layer
+`ProductListPage` (`lib/presentation/pages/product_list_page.dart`):
 
-- **DI** - Service locator pattern with get_it
-- **Theme** - Material theme configuration
+- App bar:
+    - Title: “Products”
+    - Action: grid/list toggle (icon changes based on `isGridView`)
+- Drawer:
+    - `AppDrawer` with favorites count + theme switch
+- Body:
+    - `OfflineStatusBanner` at top
+    - Main area uses `GetBuilder` + `Obx` to render:
+        - `LoadingWidget` when `isLoading == true`
+        - `ErrorHandler` with retry when `error` is non‑empty and no products
+        - Offline empty state when offline and no cache
+        - Otherwise:
+            - `ProductGrids` if `isGridView == true`
+            - `ProductList` if `isGridView == false`
+    - Both grid and list use `RefreshIndicator` to call `refreshProducts()`
+
+### UI: Favorites Flow
+
+- `FavoritesScreen` (`lib/presentation/pages/favorites_screen.dart`):
+    - Uses `GetView<ProductListController>` to access the same controller
+    - Filters `controller.products` by `controller.isFavorite(p.id)`
+    - Shows empty state if no favorites
+    - Tapping a card navigates to `ProductDetailPage(product: product)`
+    - Each card includes a favorite button to remove from favorites
+
+### Favorites & Persistence
+
+- Favorites are stored in Hive via `ProductRepository` and/or a favorites box.
+- The controller maintains `favorites` as a list of IDs:
+    - `loadFavorites()` populates `favorites` from repository/Hive
+    - `toggleFavorite` updates:
+        - Hive (via repository methods like `addToFavorites`/`removeFromFavorites`)
+        - The in‑memory `favorites` list
+- UI calls `isFavorite(product.id)` to decide which icon to show.
 
 ---
 
-## 🤝 Contributing
+## 🚀 Possible Extensions
 
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+- Add explicit pagination (page + limit instead of always `limit: 100`).
+- Add search and filters that use `searchCachedProducts` / `getByCategory` from the local datasource.
+- Extract a separate `ThemeController` if theme logic grows.
+- Add tests for:
+    - `ProductListController`
+    - `ProductRepository`
+    - `ProductLocalDatasource`
 
 ---
 
 ## 📄 License
 
-This project is open source and available under the MIT License.
+You can license this project under MIT or another permissive license of your choice.
 
 ---
 
 ## 👤 Author
 
-**Ahmad M. Hassanien**  
-Senior Flutter Developer  
-📧 Ahmad_hassanien@hotmail.com  
-🔗 [GitHub](https://github.com/Ahmed-Muhammad) | [LinkedIn](https://linkedin.com/in/Ahmad-Muhammad)
+Adapt this section to your profile. Example:
 
----
-
-## 🎓 Learning Outcomes
-
-By studying this project, you'll learn:
-
--  Clean Architecture in Flutter
--  GetX state management
--  Hive local database integration
--  REST API integration with error handling
--  Unit testing with Mockito
--  Dependency injection pattern
--  Pagination implementation
--  Theme management
--  Pull-to-refresh functionality
--  Caching strategies
-
----
-
-## 🔔 Version History
-
-### v1.0.0 (Current)
-
--  Initial release
--  Product listing with pagination
--  Product details view
--  Favorites management
--  Dark mode support
--  Unit tests
--  Error handling
-
----
-
-## 💬 Support
-
-For questions or issues:
-
-1. Check the [Issues](https://github.com/Ahmed-Muhammad/flutter_task_systems/issues) page
-2. Create a new issue with detailed description
-3. Include error logs and device information
-
----
-
-**Last Updated:** December 2025  
-**Framework:** Flutter 3.0+  
-**Language:** Dart 3.0+  
-**Architecture:** Clean Architecture with GetX
-
----
-
-⭐ If this project helped you, please give it a star! ⭐
+- Name: Ahmad M. Hassanien
+- Role: Senior Flutter Developer
+- GitHub: `https://github.com/<your-username>`
+- LinkedIn: `https://www.linkedin.com/in/<your-handle>/`  
