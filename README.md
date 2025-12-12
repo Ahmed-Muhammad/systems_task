@@ -61,15 +61,18 @@ Comprehensive product information display:
 The app provides robust offline functionality:
 
 **When Online**:
+
 - Products are fetched from API and cached locally
 - Cache is automatically updated
 
 **When Offline**:
+
 - Products load from local cache
 - Clear messaging when no cache exists
 - Graceful degradation of functionality
 
 **Cache Operations**:
+
 - `cacheProducts(data)` - Store products locally
 - `getAllCachedProducts()` - Retrieve all cached items
 - `getCacheCount()` - Get number of cached products
@@ -121,30 +124,30 @@ The app provides robust offline functionality:
 ### Dependencies
 
 ```yaml
-dependencies:
-  flutter:
-    sdk: flutter
-
+dependencies :
+  flutter :
+    sdk : flutter
+  
   # State Management & Navigation
-  get: ^4.6.6
-
+  get : ^4.6.6
+  
   # Local Database
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
-
+  hive : ^2.2.3
+  hive_flutter : ^1.1.0
+  
   # Network Connectivity
-  connectivity_plus: ^6.0.5
-
+  connectivity_plus : ^6.0.5
+  
   # UI Helpers
-  gap: ^3.0.1
-
+  gap : ^3.0.1
+  
   # HTTP Client
-  dio: ^5.x.x
+  dio : ^5.x.x
 
-dev_dependencies:
-  flutter_lints: ^3.0.0
-  build_runner: ^2.4.6
-  hive_generator: ^2.0.1
+dev_dependencies :
+  flutter_lints : ^3.0.0
+  build_runner : ^2.4.6
+  hive_generator : ^2.0.1
 ```
 
 ---
@@ -211,7 +214,7 @@ class ProductListController extends GetxController {
   final ProductLocalDatasource productHiveDS;
 
   ProductListController(this.repository, this.productHiveDS);
-  // ...
+// ...
 }
 ```
 
@@ -297,31 +300,37 @@ lib/
 #### Core Functionality:
 
 **Initialization** (`onInit`):
+
 - Initialize Hive datasource
 - Start connectivity listener
 - Load favorites from storage
 - Load products (online or from cache)
 
 **Online Data Loading**:
+
 - Fetch from `repository.getProducts(limit: 100)`
 - Cache results to Hive
 - Update UI state
 
 **Offline Data Loading**:
+
 - Retrieve from `productHiveDS.getAllCachedProducts()`
 - Show appropriate offline messaging
 
 **Favorites Management**:
+
 - `toggleFavorite(Product product)` - Add/remove favorites
 - `loadFavorites()` - Load favorites from storage
 - `isFavorite(int productId)` - Check favorite status
 
 **Connectivity Handling**:
+
 - Subscribe to `Connectivity().onConnectivityChanged`
 - Update `isOnline` status
 - Trigger `_handleReconnection()` → `refreshProducts()` on reconnection
 
 **UI Controls**:
+
 - `toggleViewMode()` - Switch between grid and list
 - `toggleTheme()` - Toggle dark/light mode using `Get.changeThemeMode()`
 
@@ -330,14 +339,17 @@ lib/
 **Location**: `lib/presentation/pages/product_list_page.dart`
 
 #### App Bar:
+
 - Title: "Products"
 - Action button: Grid/List toggle (icon changes based on `isGridView`)
 
 #### Drawer:
+
 - `AppDrawer` with favorites count badge
 - Theme toggle switch
 
 #### Body:
+
 - `OfflineStatusBanner` - Persistent network status indicator
 - Main content area using `GetBuilder` + `Obx`:
     - **Loading State**: Shows `LoadingWidget`
@@ -363,6 +375,7 @@ lib/
 **Storage**: Hive database via `ProductRepository`
 
 **Flow**:
+
 1. `loadFavorites()` - Populates `favorites` list from Hive
 2. `toggleFavorite()` - Updates:
     - Hive storage (via `addToFavorites`/`removeFromFavorites`)
@@ -370,16 +383,34 @@ lib/
 3. `isFavorite(productId)` - Checks favorite status for UI rendering
 
 ---
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
 ---
+
+## 📸 Screenshots
+
+| Products Grid (Dark)                                                  | Products Grid (Light)                                                  |
+|-----------------------------------------------------------------------|------------------------------------------------------------------------|
+| ![Products Grid Dark](assets/screenshots/Products%20Grids%20Dark.png) | ![Products Grid Light](assets/screenshots/Products%20Grid%20Light.png) |
+
+| Products List (Dark)                                                 | Products List (Light)                                                  |
+|----------------------------------------------------------------------|------------------------------------------------------------------------|
+| ![Products List Dark](assets/screenshots/Products%20List%20Dark.png) | ![Products List Light](assets/screenshots/Products%20List%20Light.png) |
+
+| Product Details (Light)                                                    | Drawer (Dark)                                        |
+|----------------------------------------------------------------------------|------------------------------------------------------|
+| ![Product Details Light](assets/screenshots/Product%20Details%20Light.png) | ![Drawer Dark](assets/screenshots/Drawer%20Dark.png) |
+
+| Product Details (Dark)                                                   | Drawer (Light)                                         |
+|--------------------------------------------------------------------------|--------------------------------------------------------|
+| ![Product Details Dark](assets/screenshots/Product%20Details%20Dark.png) | ![Drawer Light](assets/screenshots/Drawer%20Light.png) |
+
+| Favorites (Light)                                            | Favorites (Dark)                                           |
+|--------------------------------------------------------------|------------------------------------------------------------|
+| ![Favorites Light](assets/screenshots/Favorites%20Light.png) | ![Favorites Dark](assets/screenshots/Favorites%20Dark.png) |
 
 ## 👤 Author
 
 **Ahmad M. Hassanien**
+
 - Email: Ahmad_hassanien@hotmail.com
 - Phone: (+2) 01023468689
 
